@@ -70,7 +70,9 @@ server.get("/search", async (req, reply) => {
   }
 });
 
-server.listen({ port: 8080 }, (err, address) => {
+const port = process.env.PORT || 8080;
+
+server.listen({ port }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
