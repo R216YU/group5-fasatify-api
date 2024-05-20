@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import fastifyCors from "@fastify/cors";
 import axios from "axios";
 import * as dotenv from "dotenv";
 import { createClient } from "@google/maps";
@@ -6,6 +7,11 @@ import { createClient } from "@google/maps";
 dotenv.config();
 
 const server = fastify();
+
+server.register(fastifyCors, {
+  origin: "*", // すべてのオリジンを許可
+  methods: ["GET"],
+});
 
 server.get("/", (req, reply) => {
   return reply.send("田村教室 group5");
