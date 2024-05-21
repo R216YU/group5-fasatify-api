@@ -42,7 +42,7 @@ server.get("/search", async (req, reply) => {
   // 初期値の設定
   const { lat, lng } = await getGeocodeByAddress(location);
   const locationValue = location !== undefined ? lat + "," + lng : "35.681236,139.767125"; //default 東京駅
-  const keywordValue = keyword !== undefined ? keyword : "食べ物";
+  const keywordValue = keyword !== undefined ? keyword : "飲食店";
   const radiusValue = radius !== undefined ? radius : "1000";
 
   try {
@@ -58,18 +58,15 @@ server.get("/search", async (req, reply) => {
     });
 
     // データの加工
-    const res = [
-      response.data.results.map((place) => {
-        return {
-          placeId: place.place_id,
-          name: place.name,
-          phone: place.tel,
-          address: place.vicinity,
-          googleMap: `https://www.google.com/maps/search/${place.name}${place.vicinity}`,
-        };
-      }),
-    ];
-
+    const res = response.data.results.map((place) => {
+      return {
+        placeId: place.place_id,
+        name: place.name,
+        phone: place.tel,
+        address: place.vicinity,
+        googleMap: `https://www.google.com/maps/search/${place.name}${place.vicinity}`,
+      };
+    });
     return reply.send(res);
   } catch (error) {
     return reply.status(500).send({ error: "Something went wrong" });
