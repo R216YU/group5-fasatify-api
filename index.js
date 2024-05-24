@@ -2,7 +2,6 @@ import fastify from "fastify";
 import fastifyCors from "@fastify/cors";
 import axios from "axios";
 import * as dotenv from "dotenv";
-import { createClient } from "@google/maps";
 
 dotenv.config();
 
@@ -13,70 +12,58 @@ server.register(fastifyCors, {
   methods: ["GET"],
 });
 
-server.get("/", (req, reply) => {
-  return reply.send("田村教室 group5");
+const END_POINT = "https://maps.googleapis.com/maps/api/place/textsearch/json";
+const API_KEY = "AIzaSyDcrAzNG_DKUgZS2NXXrNGq4Ah6uBpDjK4";
+
+server.get("/", (request, reply) => {
+  return reply.send("田村教室 group5 group-work-api");
 });
-
-// ランドマークから緯度・経度の取得
-const getGeocodeByAddress = async (address) => {
-  const googleMapsClient = createClient({
-    key: process.env.GOOGLE_MAPS_API_KEY,
-    Promise: Promise,
-  });
-
-  try {
-    const response = await googleMapsClient.geocode({ address }).asPromise();
-    const { lat, lng } = response.json.results[0].geometry.location;
-
-    return { lat, lng };
-  } catch (error) {
-    return address + "から緯度・経度の取得ができませんでした。";
-  }
-};
 
 // GOOGLE MAP APIS
 server.get("/search", async (req, reply) => {
-  // クエリーパラメーターから場所、キーワード、半径を取得
-  const { location, keyword, radius } = req.query;
+  // クエリーパラメーターから場所、キーワードを取得
+  const { location, keyword } = req.query;
 
-  // 初期値の設定
-  const { lat, lng } = await getGeocodeByAddress(location);
-  const locationValue = location !== undefined ? lat + "," + lng : "35.681236,139.767125"; //default 東京駅
-  const keywordValue = keyword !== undefined ? keyword : "飲食店";
-  const radiusValue = radius !== undefined ? radius : "1000";
+  const locationValue = location != undefined ? location : "";
+  const keywordValue = keyword != undefined ? keyword : "";
 
   try {
-    const response = await axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", {
+    const response = await axios.get(END_POINT, {
       params: {
-        location: locationValue,
-        keyword: keywordValue,
-        radius: radiusValue,
+        query: `${locationValue}+${keywordValue}`,
         language: "ja",
         type: "restaurant",
-        key: process.env.GOOGLE_MAPS_API_KEY,
+        key: API_KEY,
       },
     });
 
     // データの加工
-    const res = response.data.results.map((place) => {
+    const results = response.data.results.map((place) => {
+      const splitedAddress = place.formatted_address.split(" ");
+      splitedAddress.shift();
+      const correctAddress = splitedAddress.join(" ");
+
       return {
         placeId: place.place_id,
         name: place.name,
-        phone: place.tel,
-        address: place.vicinity,
-        googleMap: `https://www.google.com/maps/search/${place.name}${place.vicinity}`,
+        address: correctAddress,
+        googleMap: `https://www.google.com/maps/search/${place.name}+${correctAddress}`,
       };
     });
-    return reply.send(res);
+
+    return reply.send(results);
   } catch (error) {
     return reply.status(500).send({ error: "Something went wrong" });
   }
 });
 
-server.listen({ port: process.env.PORT || 8080, host: "0.0.0.0" }, (err, address) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
+server.listen(
+  { port: process.env.PORT || 8080, host: "0.0.0.0" },
+  (err, address) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
+    console.log(`Server listening!`);
   }
-  console.log(`Server listening at ${address}`);
-});
+);
