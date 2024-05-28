@@ -13,9 +13,9 @@ server.register(fastifyCors, {
 });
 
 const END_POINT = "https://maps.googleapis.com/maps/api/place/textsearch/json";
-const API_KEY = "AIzaSyDcrAzNG_DKUgZS2NXXrNGq4Ah6uBpDjK4";
+const API_KEY = process.env.API_KEY;
 
-server.get("/", (request, reply) => {
+server.get("/", (req, reply) => {
   return reply.send("田村教室 group5 group-work-api");
 });
 
@@ -57,13 +57,10 @@ server.get("/search", async (req, reply) => {
   }
 });
 
-server.listen(
-  { port: process.env.PORT || 8080, host: "0.0.0.0" },
-  (err, address) => {
-    if (err) {
-      console.error(err);
-      process.exit(1);
-    }
-    console.log(`Server listening!`);
+server.listen({ port: process.env.PORT || 8080, host: "0.0.0.0" }, (err, address) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
   }
-);
+  console.log(`Server listening!`);
+});
