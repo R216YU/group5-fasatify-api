@@ -13,7 +13,7 @@ server.register(fastifyCors, {
 });
 
 const END_POINT = "https://maps.googleapis.com/maps/api/place/textsearch/json";
-const API_KEY = process.env.API_KEY;
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 server.get("/", (req, reply) => {
   return reply.send("田村教室 group5 group-work-api");
@@ -33,7 +33,7 @@ server.get("/search", async (req, reply) => {
         query: `${locationValue}+${keywordValue}`,
         language: "ja",
         type: "restaurant",
-        key: API_KEY,
+        key: GOOGLE_MAPS_API_KEY,
       },
     });
 
