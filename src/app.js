@@ -32,6 +32,7 @@ server.get("/search", async (req, reply) => {
       params: {
         query: `${locationValue}+${keywordValue}`,
         language: "ja",
+        region: "ja",
         type: "restaurant",
         key: GOOGLE_MAPS_API_KEY,
       },
@@ -39,9 +40,10 @@ server.get("/search", async (req, reply) => {
 
     // データの加工
     const results = response.data.results.map((place) => {
-      const splitedAddress = place.formatted_address.split(" ");
-      splitedAddress.shift();
-      const correctAddress = splitedAddress.join(" ");
+      // 住所設定
+      const splittedAddress = place.formatted_address.split(" ");
+      splittedAddress.shift();
+      const correctAddress = splittedAddress.join(" ");
 
       return {
         placeId: place.place_id,
