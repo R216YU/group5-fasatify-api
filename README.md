@@ -4,6 +4,8 @@
 https://groupwork-fastify.onrender.com/
 
 ## 使用技術
+言語: JavaScript
+
 ランタイム環境: Node.js
 
 フレームワーク: Fastify
